@@ -317,6 +317,9 @@ submission.complete.title = Your submission reference:
 submission.complete.message = <html>Please note: your submission reference is <b>not<b/> an accession number.<br/>We aim to process all submissions within five working days, however at certain times, it might take longer.</html>
 upload.method.title = Fast upload
 upload.method.message = Would you like to use our fast upload service?
+upload.encryption.error.message=<html><b>Failed to encrypt files<br/>In which case you should contact your system administrator.</html>
+upload.encryption.error.title=Encryption error
+
 
 # submission type screen
 submission.type.submission.tool.detail = <html>This tool guides you to submit dataset to members of the ProteomeXchange consortium.</html>
@@ -440,3 +443,7 @@ icon.warning.normal.small = icon/64x64/warning.png
 training.mode.toggle.checkbox.text = Training Mode (no actual submission at the end)
 training.mode.toggle.checkbox.help.text = Check this box to activate 'Training Mode' for this submission session
 training.mode.application.title.logo = icon/logo/logo-training_mode.png
+
+# Controlled access data
+controlled.access.mode.toggle.checkbox.text = Controlled access data
+controlled.access.mode.toggle.checkbox.help.text = Check this box to encrypt controlled access data before submission

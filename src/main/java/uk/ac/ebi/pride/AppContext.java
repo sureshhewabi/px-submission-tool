@@ -86,6 +86,9 @@ public class AppContext extends DesktopContext {
     // Training mode flag
     private boolean trainingModeFlag = false;
 
+    // Controlled mode flag
+    private boolean controlledAccessModeFlag = false;
+
     public AppContext() {
         this.submissionRecord = new SubmissionRecord();
         this.submissionRecord.setSubmission(new Submission());
@@ -98,6 +101,10 @@ public class AppContext extends DesktopContext {
 
     public void setTrainingModeFlag(boolean trainingModeFlag) {
         this.trainingModeFlag = trainingModeFlag;
+    }
+
+    public void setControlledAccessModeStatusFlag(boolean controlledAccessModeStatusFlag) {
+        this.controlledAccessModeFlag = controlledAccessModeStatusFlag;
     }
 
     public synchronized SubmissionRecord getSubmissionRecord() {
