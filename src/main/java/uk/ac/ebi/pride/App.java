@@ -322,9 +322,15 @@ public class App extends Desktop {
                     getDesktopContext().getProperty("summary.nav.desc.detail"));
             navigator.registerNavigationPanel(summaryPanel);
 
+            // register encryption panel
+            EncryptionDescriptor encryptionPanel = new EncryptionDescriptor(getDesktopContext().getProperty("encryption.nav.desc.id"),
+                    "Step 10: " + getDesktopContext().getProperty("encryption.nav.desc.title") + " (9/10)",
+                    getDesktopContext().getProperty("encryption.nav.desc.detail"));
+            navigator.registerNavigationPanel(encryptionPanel);
+
             // register submission form
             SubmissionDescriptor submissionPanel = new SubmissionDescriptor(getDesktopContext().getProperty("submission.nav.desc.id"),
-                    "Step 10: " + getDesktopContext().getProperty("submission.nav.desc.title") + " (10/10)",
+                    "Step 11: " + getDesktopContext().getProperty("submission.nav.desc.title") + " (10/10)",
                     getDesktopContext().getProperty("submission.nav.desc.detail"));
             navigator.registerNavigationPanel(submissionPanel);
 

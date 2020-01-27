@@ -22,3 +22,7 @@ px.upload.protocol = aspera
 #
 # (status is 'on' or 'off')
 training.mode.status = off
+
+
+#   To set number of threads parallely encrypt files that are to be submitted
+px.encryption.threads.size = 1

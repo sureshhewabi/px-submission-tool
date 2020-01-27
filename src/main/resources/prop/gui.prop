@@ -228,6 +228,10 @@ summary.nav.desc.id = Summary
 summary.nav.desc.title = Submission Summary
 summary.nav.desc.detail = Please double-check before starting your submission
 
+encryption.nav.desc.id = Encryption
+encryption.nav.desc.title = Encrypting Files
+encryption.nav.desc.detail = The files selected are being encrypted
+
 submission.nav.desc.id = Submission
 submission.nav.desc.title = Submission
 submission.nav.desc.detail = Submission progress
@@ -365,7 +369,7 @@ search.file.title = Search files
 other.file.title = Other files
 file.non.zero.count.small.icon = icon/16x16/green_bullet.png
 file.zero.count.small.icon = icon/16x16/grey_bullet.png
-summary.submit.button.title = Submit
+summary.next.button.title = Next
 summary.validate.button.title = Result File Validation
 summary.validate.button.tooltip = Validate your complete submission before submitting
 
@@ -373,6 +377,11 @@ validation.report.frame.title = PX Submission Tool Validation Report
 validation.report.help.button = Ask support from PRIDE Team
 
 summary.dataset.accept.license.text=<html><body>Please accept <a href="http://www.ebi.ac.uk/pride/markdownpage/usagepolicy" title="PRIDE Archive dataset license" target="_blank">PRIDE Archive dataset license</a></body></html>
+
+# Encryption screen
+encryption.submit.button.title = Submit
+encryption.large.icon = icon/64x64/encrypt.png
+encryption.default.message = Preparing to upload
 
 # Help
 help.main.set=help/MainHelp.hs

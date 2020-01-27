@@ -28,7 +28,6 @@ import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -156,17 +155,6 @@ public class SubmissionDescriptor extends ContextAwareNavigationPanelDescriptor 
 
         Task task = null;
 
-        try {
-            EncryptFileFactory.encryptFiles(appContext.getSubmissionRecord().getSubmission());
-        } catch (Exception exception) {
-            logger.error("Error in encryption", exception.getMessage());
-            // show error message dialog
-            JOptionPane.showConfirmDialog(app.getMainFrame(),
-                    appContext.getProperty("upload.encryption.error.message"),
-                    appContext.getProperty("uupload.encryption.error.title"),
-                    JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
-        }
-
         setDataFilesToTransfer(submissionRecord.getSubmission());
 
         if (uploadMethod.equals(UploadMethod.FTP)) {
@@ -189,9 +177,9 @@ public class SubmissionDescriptor extends ContextAwareNavigationPanelDescriptor 
     private void setDataFilesToTransfer(Submission submission) {
         List<DataFile> dataFiles = submission.getDataFiles();
         submission.removeAllDataFiles();
-        for(DataFile dataFile : dataFiles){
+        for (DataFile dataFile : dataFiles) {
             String filePath = dataFile.getFilePath();
-            dataFile.setFile(new File(filePath+".gpg"));
+            dataFile.setFile(new File(filePath + ".gpg"));
             submission.addDataFile(dataFile);
             DataFile md5DataFile = new DataFile();
             md5DataFile.setFile(new File(filePath + ".md5"));

@@ -79,6 +79,13 @@ public class AppBootstrap {
             cmdBuffer.append(uploadProtocol);
         }
 
+        // get number of threads encrypting
+        String numberOfThreadsEncrypting = bootstrapProps.getProperty("px.encryption.threads.size");
+        if (numberOfThreadsEncrypting != null) {
+            cmdBuffer.append(" -Dpx.encryption.threads.size=");
+            cmdBuffer.append(numberOfThreadsEncrypting);
+        }
+
         // Get training setting
         String trainingModeStatus = bootstrapProps.getProperty("training.mode.status");
         if (trainingModeStatus != null) {
