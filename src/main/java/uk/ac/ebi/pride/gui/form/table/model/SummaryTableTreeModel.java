@@ -26,8 +26,8 @@ public class SummaryTableTreeModel extends AbstractTreeTableModel implements Pro
         FILE_NAME("File Name", "File name"),
         PATH("PATH / URL", "File path or URL"),
         TYPE("Type", "File type"),
-        SIZE("Size (Mb)", "File size"),
-        NUMBER_OF_MAPPINGS("#Mapped files", "Number of mapped source files");
+        SIZE("Size (Mb)", "File size");
+//        NUMBER_OF_MAPPINGS("#Mapped files", "Number of mapped source files");
 
         private final String header;
 
@@ -81,8 +81,8 @@ public class SummaryTableTreeModel extends AbstractTreeTableModel implements Pro
             return dataFile.getFilePath();
         } else if (TableHeader.TYPE.getHeader().equals(header)) {
             return dataFile.getFileType().toString();
-        } else if (TableHeader.NUMBER_OF_MAPPINGS.getHeader().equals(header)) {
-            return dataFile.getFileMappings().size();
+//        } else if (TableHeader.NUMBER_OF_MAPPINGS.getHeader().equals(header)) {
+//            return dataFile.getFileMappings().size();
         } else if (TableHeader.SIZE.getHeader().equals(header)) {
             long fileSizeInBytes = dataFile.getFileSize();
 
@@ -202,7 +202,8 @@ public class SummaryTableTreeModel extends AbstractTreeTableModel implements Pro
     public void propertyChange(PropertyChangeEvent evt) {
         String propName = evt.getPropertyName();
         if (AppContext.ADD_NEW_DATA_FILE.equals(propName) || AppContext.REMOVE_DATA_FILE.equals(propName) || AppContext.CHANGE_DATA_FILE_TYPE.equals(propName)
-                || AppContext.ADD_NEW_DATA_FILE_MAPPING.equals(propName) || AppContext.REMOVE_DATA_FILE_MAPPING.equals(propName) || AppContext.NEW_SUBMISSION_FILE.equals(propName)) {
+//                || AppContext.ADD_NEW_DATA_FILE_MAPPING.equals(propName) || AppContext.REMOVE_DATA_FILE_MAPPING.equals(propName)
+                || AppContext.NEW_SUBMISSION_FILE.equals(propName)) {
             TreePath path = (root != null) ? new TreePath(root) : null;
             modelSupport.fireTreeStructureChanged(path);
         }

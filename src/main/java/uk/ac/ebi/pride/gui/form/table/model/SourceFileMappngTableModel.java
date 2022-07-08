@@ -21,9 +21,9 @@ public class SourceFileMappngTableModel extends PxTableModel implements Property
     public enum TableHeader {
         FILE_NAME("File Name", "File name"),
         PATH("PATH / URL", "File path or URL"),
-        TYPE("Type", "File type"),
-        NUMBER_OF_MAPPINGS("#Relations", "Number of related files"),
-        MAPPING("Add Relation", "Assign new related files");
+        TYPE("Type", "File type");
+//        NUMBER_OF_MAPPINGS("#Relations", "Number of related files");
+//        MAPPING("Add Relation", "Assign new related files");
 
         private final String header;
 
@@ -61,7 +61,7 @@ public class SourceFileMappngTableModel extends PxTableModel implements Property
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return TableHeader.MAPPING.getHeader().equals(getColumnName(columnIndex)) || super.isCellEditable(rowIndex, columnIndex);
+        return super.isCellEditable(rowIndex, columnIndex);
     }
 
     @Override
@@ -100,11 +100,13 @@ public class SourceFileMappngTableModel extends PxTableModel implements Property
                 }
             } else if (TableHeader.TYPE.getHeader().equals(getColumnName(columnIndex))) {
                 return dataFile.getFileType();
-            } else if (TableHeader.NUMBER_OF_MAPPINGS.getHeader().equals(getColumnName(columnIndex))) {
-                return dataFile.getFileMappings().size();
-            } else if (TableHeader.MAPPING.getHeader().equals(getColumnName(columnIndex))) {
-                return dataFile;
             }
+//            } else if (TableHeader.NUMBER_OF_MAPPINGS.getHeader().equals(getColumnName(columnIndex))) {
+//                return dataFile.getFileMappings().size();
+//            }
+//            else if (TableHeader.MAPPING.getHeader().equals(getColumnName(columnIndex))) {
+//                return dataFile;
+//            }
         }
 
         return null;
@@ -114,7 +116,8 @@ public class SourceFileMappngTableModel extends PxTableModel implements Property
     public void propertyChange(PropertyChangeEvent evt) {
         String propName = evt.getPropertyName();
         if (AppContext.ADD_NEW_DATA_FILE.equals(propName) || AppContext.REMOVE_DATA_FILE.equals(propName) || AppContext.CHANGE_DATA_FILE_TYPE.equals(propName)
-                || AppContext.ADD_NEW_DATA_FILE_MAPPING.equals(propName) || AppContext.REMOVE_DATA_FILE_MAPPING.equals(propName) || AppContext.NEW_SUBMISSION_FILE.equals(propName)
+                || AppContext.ADD_NEW_DATA_FILE_MAPPING.equals(propName) || AppContext.REMOVE_DATA_FILE_MAPPING.equals(propName)
+                || AppContext.NEW_SUBMISSION_FILE.equals(propName)
                 || AppContext.SUBMISSION_TYPE_CHANGED.equals(propName)) {
             fireTableDataChanged();
         }

@@ -148,44 +148,44 @@ public class TableFactory {
      *
      * @return JTable  source file mapping table
      */
-    public static JTable createSourceFileMappingTable() {
-        SourceFileMappngTableModel tableModel = new SourceFileMappngTableModel();
-        JTable table = new PxTable(tableModel);
-
-        // set file name column width
-        TableColumnExt nameColumn = (TableColumnExt) table.getColumn(SourceFileMappngTableModel.TableHeader.FILE_NAME.getHeader());
-        nameColumn.setPreferredWidth(FILE_NAME_COLUMN_WIDTH);
-
-        // set file path column width
-        TableColumnExt pathColumn = (TableColumnExt) table.getColumn(SourceFileMappngTableModel.TableHeader.PATH.getHeader());
-        pathColumn.setPreferredWidth(FILE_PATH_COLUMN_WIDTH);
-
-        // create combo box to select file type
-        TableColumnExt fileTypeColumn = (TableColumnExt) table.getColumn(SourceFileMappngTableModel.TableHeader.TYPE.getHeader());
-        fileTypeColumn.setMinWidth(FILE_TYPE_COLUMN_WIDTH);
-        fileTypeColumn.setMaxWidth(FILE_TYPE_COLUMN_WIDTH);
-
-        // mapping count column
-        TableColumnExt mappingCountColumn = (TableColumnExt) table.getColumn(SourceFileMappngTableModel.TableHeader.NUMBER_OF_MAPPINGS.getHeader());
-        mappingCountColumn.setCellRenderer(new FileMappingCountCellRenderer());
-        mappingCountColumn.setPreferredWidth(MAPPING_COUNT_COLUMN_WIDTH);
-
-        // mapping column
-        String mappingColHeader = SourceFileMappngTableModel.TableHeader.MAPPING.getHeader();
-        final TableColumnExt mappingColumn = (TableColumnExt) table.getColumn(mappingColHeader);
-        String text = App.getInstance().getDesktopContext().getProperty("add.file.mapping.button.title");
-        Icon icon = GUIUtilities.loadIcon(App.getInstance().getDesktopContext().getProperty("add.file.mapping.button.small.icon"));
-        mappingColumn.setCellRenderer(new ButtonCellRenderer(text, icon));
-        mappingColumn.setCellEditor(new MappingButtonCellEditor(text, icon));
-        mappingColumn.setMaxWidth(MAPPING_COLUMN_WIDTH);
-        mappingColumn.setMinWidth(MAPPING_COLUMN_WIDTH);
-
-        // add listener for removal
-        table.addMouseMotionListener(new TableCellMouseMotionListener(table, mappingColHeader));
-
-
-        return table;
-    }
+//    public static JTable createSourceFileMappingTable() {
+//        SourceFileMappngTableModel tableModel = new SourceFileMappngTableModel();
+//        JTable table = new PxTable(tableModel);
+//
+//        // set file name column width
+//        TableColumnExt nameColumn = (TableColumnExt) table.getColumn(SourceFileMappngTableModel.TableHeader.FILE_NAME.getHeader());
+//        nameColumn.setPreferredWidth(FILE_NAME_COLUMN_WIDTH);
+//
+//        // set file path column width
+//        TableColumnExt pathColumn = (TableColumnExt) table.getColumn(SourceFileMappngTableModel.TableHeader.PATH.getHeader());
+//        pathColumn.setPreferredWidth(FILE_PATH_COLUMN_WIDTH);
+//
+//        // create combo box to select file type
+//        TableColumnExt fileTypeColumn = (TableColumnExt) table.getColumn(SourceFileMappngTableModel.TableHeader.TYPE.getHeader());
+//        fileTypeColumn.setMinWidth(FILE_TYPE_COLUMN_WIDTH);
+//        fileTypeColumn.setMaxWidth(FILE_TYPE_COLUMN_WIDTH);
+//
+//        // mapping count column
+//        TableColumnExt mappingCountColumn = (TableColumnExt) table.getColumn(SourceFileMappngTableModel.TableHeader.NUMBER_OF_MAPPINGS.getHeader());
+//        mappingCountColumn.setCellRenderer(new FileMappingCountCellRenderer());
+//        mappingCountColumn.setPreferredWidth(MAPPING_COUNT_COLUMN_WIDTH);
+//
+//        // mapping column
+//        String mappingColHeader = SourceFileMappngTableModel.TableHeader.MAPPING.getHeader();
+//        final TableColumnExt mappingColumn = (TableColumnExt) table.getColumn(mappingColHeader);
+//        String text = App.getInstance().getDesktopContext().getProperty("add.file.mapping.button.title");
+//        Icon icon = GUIUtilities.loadIcon(App.getInstance().getDesktopContext().getProperty("add.file.mapping.button.small.icon"));
+//        mappingColumn.setCellRenderer(new ButtonCellRenderer(text, icon));
+//        mappingColumn.setCellEditor(new MappingButtonCellEditor(text, icon));
+//        mappingColumn.setMaxWidth(MAPPING_COLUMN_WIDTH);
+//        mappingColumn.setMinWidth(MAPPING_COLUMN_WIDTH);
+//
+//        // add listener for removal
+//        table.addMouseMotionListener(new TableCellMouseMotionListener(table, mappingColHeader));
+//
+//
+//        return table;
+//    }
 
 
     /**

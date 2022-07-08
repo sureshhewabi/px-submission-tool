@@ -214,9 +214,9 @@ additional.metadata.nav.desc.id = AdditionalMetaData
 additional.metadata.nav.desc.title = Additional Details
 additional.metadata.nav.desc.detail = Please give additional details about your submission
 
-file.mapping.nav.desc.id = FileMapping
-file.mapping.nav.desc.title = Relationships between files
-file.mapping.nav.desc.detail = Specify and check the files used for producing the results
+#file.mapping.nav.desc.id = FileMapping
+#file.mapping.nav.desc.title = Relationships between files
+#file.mapping.nav.desc.detail = Specify and check the files used for producing the results
 
 project.metadata.nav.desc.id = ProjectMetaData
 project.metadata.nav.desc.title = Dataset Details
