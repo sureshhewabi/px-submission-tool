@@ -37,6 +37,12 @@ public class AdditionalDatasetDetailsDescriptor extends ContextAwareNavigationPa
         firePropertyChange(BEFORE_DISPLAY_PANEL_PROPERTY, false, true);
     }
 
+    @Override
+    public boolean toSkipPanel() {
+        final String resubmissionPxAccession = appContext.getSubmissionRecord().getSubmission().getProjectMetaData().getResubmissionPxAccession();
+        return resubmissionPxAccession != null;
+    }
+
     private void updateFormContent() {
         Submission submission = appContext.getSubmissionRecord().getSubmission();
         ProjectMetaData projectMetaData = submission.getProjectMetaData();

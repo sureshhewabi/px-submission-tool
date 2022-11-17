@@ -7,9 +7,7 @@ import uk.ac.ebi.pride.App;
 import uk.ac.ebi.pride.AppContext;
 import uk.ac.ebi.pride.archive.dataprovider.file.ProjectFileType;
 import uk.ac.ebi.pride.archive.dataprovider.project.SubmissionType;
-import uk.ac.ebi.pride.data.model.DataFile;
-import uk.ac.ebi.pride.data.model.SampleMetaData;
-import uk.ac.ebi.pride.data.model.Submission;
+import uk.ac.ebi.pride.data.model.*;
 import uk.ac.ebi.pride.data.mztab.parser.MzTabFullDocumentQuickParser;
 import uk.ac.ebi.pride.data.mztab.parser.MzTabParser;
 import uk.ac.ebi.pride.data.mztab.parser.exceptions.MzTabParserException;
@@ -18,11 +16,7 @@ import uk.ac.ebi.pride.data.util.MassSpecFileFormat;
 import uk.ac.ebi.pride.data.validation.SubmissionValidator;
 import uk.ac.ebi.pride.data.validation.ValidationMessage;
 import uk.ac.ebi.pride.data.validation.ValidationReport;
-import uk.ac.ebi.pride.gui.util.Constant;
-import uk.ac.ebi.pride.gui.util.DataFileValidationMessage;
-import uk.ac.ebi.pride.gui.util.PrideConverterSupport;
-import uk.ac.ebi.pride.gui.util.ValidationState;
-import uk.ac.ebi.pride.gui.util.WarningMessageGenerator;
+import uk.ac.ebi.pride.gui.util.*;
 import uk.ac.ebi.pride.jaxb.model.CvParam;
 import uk.ac.ebi.pride.jaxb.model.SampleDescription;
 import uk.ac.ebi.pride.jaxb.xml.unmarshaller.PrideXmlUnmarshaller;
@@ -36,22 +30,15 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.xml.bind.JAXBException;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Validate all the files selected in the file selection step
@@ -59,9 +46,9 @@ import java.util.stream.Collectors;
  * @author Rui Wang
  * @version $Id$
  */
-public class FileScanAndValidationTask extends TaskAdapter<DataFileValidationMessage, Void> {
+public class ResubmissionFileScanAndValidationTask extends TaskAdapter<DataFileValidationMessage, Void> {
 
-    private static final Logger logger = LoggerFactory.getLogger(FileScanAndValidationTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(ResubmissionFileScanAndValidationTask.class);
 
     private static final String MZIDENTML_ACCEPTED_VERSION_1_1_0 = "1.1.0";
     private static final String MZIDENTML_ACCEPTED_VERSION_1_2_0 = "1.2.0";
@@ -74,15 +61,27 @@ public class FileScanAndValidationTask extends TaskAdapter<DataFileValidationMes
     public static final Pattern PRIDEXML_SAMPLE_DESCRIPTION_PATTERN = Pattern.compile(".*<sampleDescription[^>]*/>.*");
 
     private Submission submission;
+    private Resubmission resubmission;
     private AppContext appContext;
+    private App app;
 
-    public FileScanAndValidationTask(Submission submission) {
+    public ResubmissionFileScanAndValidationTask(Submission submission, Resubmission resubmission) {
         this.submission = submission;
-        this.appContext = (AppContext) App.getInstance().getDesktopContext();
+        this.resubmission = resubmission;
+        this.app = (App) App.getInstance();
+        this.appContext = (AppContext) app.getDesktopContext();
     }
 
     @Override
     protected DataFileValidationMessage doInBackground() throws Exception {
+
+
+        //2. If file is modified, check if the new file has been uploaded
+        List<DataFile> missingModifiedFile = findMissingModifiedFiles();
+        if (missingModifiedFile.size() > 0) {
+            return new DataFileValidationMessage(ValidationState.ERROR, WarningMessageGenerator.getModifiedFilesWarning(missingModifiedFile));
+        }
+
         // generate validation results
         QuickValidationResult quickValidationResult = runQuickValidation(submission.getDataFiles());
         setProgress(10);
@@ -100,32 +99,28 @@ public class FileScanAndValidationTask extends TaskAdapter<DataFileValidationMes
         SubmissionType submissionType = submission.getProjectMetaData().getSubmissionType();
 
         List<DataFile> prideXmlDataFiles = submission.getDataFilesByFormat(MassSpecFileFormat.PRIDE);
-        boolean noPrideXml = prideXmlDataFiles.isEmpty();
+        List<DataFile> prideXmlDataFilesResub = resubmission.getDataFilesByFormat(MassSpecFileFormat.PRIDE);
+        boolean noPrideXml = prideXmlDataFiles.isEmpty() && prideXmlDataFilesResub.isEmpty();
 
         List<DataFile> mzIdentMLDataFiles = submission.getDataFilesByFormat(MassSpecFileFormat.MZIDENTML);
-        boolean noMzIdentML = mzIdentMLDataFiles.isEmpty();
+        List<DataFile> mzIdentMLDataFilesResub = resubmission.getDataFilesByFormat(MassSpecFileFormat.MZIDENTML);
+        boolean noMzIdentML = mzIdentMLDataFiles.isEmpty() && mzIdentMLDataFilesResub.isEmpty();
 
         // Get provided mzTab files
         List<DataFile> mzTabDataFiles = submission.getDataFilesByFormat(MassSpecFileFormat.MZTAB);
-        boolean mzTabFilesHaveBeenProvided = !mzTabDataFiles.isEmpty();
+        List<DataFile> mzTabDataFilesResub = resubmission.getDataFilesByFormat(MassSpecFileFormat.MZTAB);
+        boolean mzTabFilesHaveBeenProvided = !(mzTabDataFiles.isEmpty() && mzTabDataFilesResub.isEmpty());
 
-        boolean noRawFile = submission.getDataFileByType(ProjectFileType.RAW).isEmpty();
+        boolean noRawFile = submission.getDataFileByType(ProjectFileType.RAW).isEmpty() && resubmission.getDataFileByType(ProjectFileType.RAW).isEmpty();
 
         List<DataFile> mzMlFiles = submission.getDataFilesByFormat(MassSpecFileFormat.INDEXED_MZML);
+        List<DataFile> mzMlFilesResub = resubmission.getDataFilesByFormat(MassSpecFileFormat.INDEXED_MZML);
 
-        if (noRawFile && !mzMlFiles.isEmpty()) {
-            mzMlFiles.stream().forEach(mzMlFile -> {
-                mzMlFile.setFileType(ProjectFileType.RAW);
-                submission.removeDataFile(mzMlFile);
-            });
-            submission.addDataFiles(mzMlFiles);
-            noRawFile = false;
-        }
-
-        boolean noSearchFile = submission.getDataFileByType(ProjectFileType.SEARCH).isEmpty();
+        boolean noSearchFile = submission.getDataFileByType(ProjectFileType.SEARCH).isEmpty() && resubmission.getDataFileByType(ProjectFileType.SEARCH).isEmpty();
 
         List<DataFile> resultDataFiles = submission.getDataFileByType(ProjectFileType.RESULT);
-        boolean noResultFile = resultDataFiles.isEmpty();
+        List<DataFile> resultDataFilesResub = resubmission.getDataFileByType(ProjectFileType.RESULT);
+        boolean noResultFile = resultDataFiles.isEmpty() && resultDataFilesResub.isEmpty();
 
         if (submissionType.equals(SubmissionType.COMPLETE)) {
 
@@ -135,16 +130,16 @@ public class FileScanAndValidationTask extends TaskAdapter<DataFileValidationMes
             }
             setProgress(30);
 
-            // cannot have unsupported result files
-            if (quickValidationResult.hasUnsupportedResultFile() && !quickValidationResult.isUrlBasedResultFilePresent()) {
-                // construct error message
-                return new DataFileValidationMessage(ValidationState.ERROR, WarningMessageGenerator.getUnsupportedResultFileWarning());
-            }
-            setProgress(40);
-
-            if (noPrideXml && noMzIdentML && !mzTabFilesHaveBeenProvided && !quickValidationResult.isUrlBasedResultFilePresent()) {
-                return new DataFileValidationMessage(ValidationState.ERROR, WarningMessageGenerator.getInvalidResultFileWarning());
-            }
+//            // cannot have unsupported result files
+//            if (quickValidationResult.hasUnsupportedResultFile() && !quickValidationResult.isUrlBasedResultFilePresent()) {
+//                // construct error message
+//                return new DataFileValidationMessage(ValidationState.ERROR, WarningMessageGenerator.getUnsupportedResultFileWarning());
+//            }
+//            setProgress(40);
+//
+//            if (noPrideXml && noMzIdentML && !mzTabFilesHaveBeenProvided && !quickValidationResult.isUrlBasedResultFilePresent()) {
+//                return new DataFileValidationMessage(ValidationState.ERROR, WarningMessageGenerator.getInvalidResultFileWarning());
+//            }
 
             // cannot have both PRIDE xml and mzIdentML at the same time
             if (!noPrideXml && !noMzIdentML) {
@@ -183,22 +178,13 @@ public class FileScanAndValidationTask extends TaskAdapter<DataFileValidationMes
                 setProgress(70);
 
                 // cannot have mzIdentML without peak list files
-                Map<DataFile, List<String>> invalidMzIdentMLPeakListFiles = runMzIdentMLPeakListFileScanAndValidation(submission.getDataFiles());
+                Map<DataFile, List<String>> invalidMzIdentMLPeakListFiles = runMzIdentMLPeakListFileScanAndValidation(submission.getDataFiles(), new ArrayList<>(resubmission.getResubmission().keySet()));
                 if (invalidMzIdentMLPeakListFiles.size() > 0) {
                     DataFileValidationMessage validationMessage = new DataFileValidationMessage(ValidationState.ERROR, WarningMessageGenerator.getMzIdentMLPeakListFilWarning());
                     validationMessage.addDataFileValidationResults(invalidMzIdentMLPeakListFiles);
                     return validationMessage;
                 }
-                setProgress(80);
-
-                // cannot have mzIdentML spectra data files related to non-peak files
-                List<DataFile> invalidMzIdentMLPeakFiles = runMzIdentMLPeakFilesValidation(submission.getDataFiles());
-                if (invalidMzIdentMLPeakFiles.size() > 0) {
-                    return new DataFileValidationMessage(ValidationState.ERROR, WarningMessageGenerator.getInvalidMzIdentMLPeakFilesaWarning(invalidMzIdentMLPeakFiles));
-                }
-                setProgress(82);
             }
-
             // mzTab files support
             if (mzTabFilesHaveBeenProvided) {
                 // validate the file (parse + validation)
@@ -231,7 +217,8 @@ public class FileScanAndValidationTask extends TaskAdapter<DataFileValidationMes
                     return new DataFileValidationMessage(ValidationState.ERROR, WarningMessageGenerator.getMissingReferencedFilesWarning(mzTabFilesMissingReferencedFiles));
                 }
                 setProgress(80);
-            }
+                }
+
         } else if (submissionType.equals(SubmissionType.PARTIAL)) {
             // should have both search engine output and raw files
             if (noSearchFile || noRawFile) {
@@ -319,7 +306,7 @@ public class FileScanAndValidationTask extends TaskAdapter<DataFileValidationMes
         setProgress(100);
 
         if (!isSdrfFound) {
-            App app = (App) App.getInstance();
+//            App app = (App) App.getInstance();
             JLabel label = new JLabel();
             Font font = label.getFont();
             StringBuilder style = new StringBuilder("font-family:" + font.getFamily() + ";");
@@ -350,6 +337,26 @@ public class FileScanAndValidationTask extends TaskAdapter<DataFileValidationMes
 
         return new DataFileValidationMessage(ValidationState.SUCCESS);
     }
+
+    private List<DataFile> findMissingModifiedFiles(){
+        List<DataFile> missingModifiedFile = new ArrayList<>();
+        for(Map.Entry<DataFile, ResubmissionFileChangeState> resubmissionFile: resubmission.getResubmission().entrySet()){
+            if(resubmissionFile.getValue().equals(ResubmissionFileChangeState.MODIFIED)){
+                boolean isFound=false;
+                for(DataFile newlyUploadedFile : submission.getDataFiles()){
+                    if(newlyUploadedFile.getFileName().equals(resubmissionFile.getKey().getFileName())){
+                        isFound=true;
+                    }
+                }
+                if(!isFound){
+                    missingModifiedFile.add(resubmissionFile.getKey());
+                }
+            }
+        }
+        return missingModifiedFile;
+    }
+
+
 
     private boolean checkBafFiles(List<DataFile> dataFiles) {
         for (DataFile dataFile : dataFiles) {
@@ -386,8 +393,9 @@ public class FileScanAndValidationTask extends TaskAdapter<DataFileValidationMes
     private Map<DataFile, Set<String>> checkMzTabFileReferences(List<DataFile> mzTabDataFiles) {
         Map<DataFile, Set<String>> filesMissingReferences = new HashMap<>();
         Map<String, DataFile> dataFiles = new HashMap<>();
-        for (DataFile dataFile :
-                submission.getDataFiles()) {
+        for (DataFile dataFile : Stream.of(submission.getDataFiles(), new ArrayList<>(resubmission.getResubmission().keySet()))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList())) { // newly addded files + already submitted files
             try {
                 // If the datafile is not a file, it is a URL
                 URL dataFileToAdd = (dataFile.isFile() ? new URL("file://" + dataFile.getFilePath().toString()) : dataFile.getUrl());
@@ -497,12 +505,14 @@ public class FileScanAndValidationTask extends TaskAdapter<DataFileValidationMes
     }
 
     private void scanForFileMappings() {
-        List<DataFile> dataFiles = submission.getDataFiles();
+        List<DataFile> dataFiles = Stream.of(submission.getDataFiles(), resubmission.getResubmission().keySet())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList()); ;
         List<DataFile> resultOrSearchFiles = getResultOrSearchFile(dataFiles, submission.getProjectMetaData().getSubmissionType());
         dataFiles.removeAll(resultOrSearchFiles);
 
-        Set<DataFile> rawFiles = new HashSet<DataFile>();
-        Set<DataFile> peakFiles = new HashSet<DataFile>();
+        Set<DataFile> rawFiles = new HashSet<>();
+        Set<DataFile> peakFiles = new HashSet<>();
 
         // single result file, map the rest to the result file
         if (resultOrSearchFiles.size() == 1) {
@@ -865,7 +875,7 @@ public class FileScanAndValidationTask extends TaskAdapter<DataFileValidationMes
      * @throws IOException
      */
     private List<DataFile> runMzIdentMLSpectraDataValidation(List<DataFile> dataFiles) throws IOException {
-        List<DataFile> invalidMzIdentMLFiles = new ArrayList<DataFile>();
+        List<DataFile> invalidMzIdentMLFiles = new ArrayList<>();
 
         for (DataFile dataFile : dataFiles) {
             if (MassSpecFileFormat.MZIDENTML.equals(dataFile.getFileFormat())) {
@@ -881,34 +891,6 @@ public class FileScanAndValidationTask extends TaskAdapter<DataFileValidationMes
     }
 
     /**
-     * Validate whether mzIdentML relates to peak files or not
-     *
-     * @param dataFiles a list of all data files
-     * @return a list of invalid mzIdentMl files which don't relate to peak files
-     * section
-     * @throws IOException
-     */
-    private List<DataFile> runMzIdentMLPeakFilesValidation(List<DataFile> dataFiles) throws IOException {
-        List<DataFile> invalidMzIdentMLFiles = new ArrayList<>();
-        for (DataFile dataFile : dataFiles) {
-            if (MassSpecFileFormat.MZIDENTML.equals(dataFile.getFileFormat())) {
-                Set<String> peakListFileNames = parsePeakListFileNames(dataFile.getFile());
-                for (String peakListFileName : peakListFileNames) {
-                    for (DataFile spectraFile : dataFiles) {
-                        String spectraFileName = FileUtil.getDecompressedFileName(spectraFile.getFile());
-                        if (peakListFileName.equalsIgnoreCase(spectraFileName)) {
-                            if (spectraFile.getFileType() != ProjectFileType.PEAK) {
-                                invalidMzIdentMLFiles.add(dataFile);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return invalidMzIdentMLFiles;
-    }
-
-    /**
      * Validate whether the peak list files referenced by mzIdentML files are
      * present
      *
@@ -916,20 +898,23 @@ public class FileScanAndValidationTask extends TaskAdapter<DataFileValidationMes
      * @return a map of original mzIdentML data file and missing peak list file
      * name
      */
-    private Map<DataFile, List<String>> runMzIdentMLPeakListFileScanAndValidation(List<DataFile> dataFiles) throws IOException {
+    private Map<DataFile, List<String>> runMzIdentMLPeakListFileScanAndValidation(List<DataFile> dataFiles, List<DataFile> resubmissionSubmittedFiles) throws IOException {
         Map<DataFile, List<String>> invalidMzIdentMLFiles = new HashMap<>();
         for (DataFile dataFile : dataFiles) {
             if (MassSpecFileFormat.MZIDENTML.equals(dataFile.getFileFormat())) {
                 Set<String> peakListFileNames = parsePeakListFileNames(dataFile.getFile());
                 for (String peakListFileName : peakListFileNames) {
                     boolean present = false;
-                    for (DataFile spectraFile : dataFiles) {
+                    for (DataFile spectraFile : dataFiles) { // newly added files
                         String spectraFileName = FileUtil.getDecompressedFileName(spectraFile.getFile());
                         if (peakListFileName.equalsIgnoreCase(spectraFileName)) {
                             present = true;
-                            if (!dataFile.getFileMappings().contains(spectraFile)) {
-                                dataFile.addFileMapping(spectraFile);
-                            }
+                            break;
+                        }
+                    }
+                    for (DataFile spectraFile : resubmissionSubmittedFiles) { // already submitted files
+                        if (peakListFileName.equalsIgnoreCase(spectraFile.getFileName())) {
+                            present = true;
                             break;
                         }
                     }
@@ -948,7 +933,7 @@ public class FileScanAndValidationTask extends TaskAdapter<DataFileValidationMes
     }
 
     private Set<String> parsePeakListFileNames(File mzIdentMLFile) throws IOException {
-        Set<String> peakListFileNames = new HashSet<String>();
+        Set<String> peakListFileNames = new HashSet<>();
 
         InputStream mzIdentMLInputStream = null;
 
@@ -985,7 +970,7 @@ public class FileScanAndValidationTask extends TaskAdapter<DataFileValidationMes
         return FileUtil.isZipped(file) || FileUtil.isGzipped(file);
     }
 
-    protected static class QuickValidationResult {
+    private static class QuickValidationResult {
 
         // WARNING - Why nothing has been initialized?
         boolean supportedResultFile;

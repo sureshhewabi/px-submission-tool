@@ -1,6 +1,6 @@
 package uk.ac.ebi.pride.gui.form.table.editor;
 
-import uk.ac.ebi.pride.gui.form.dialog.FileMappingDialog;
+//import uk.ac.ebi.pride.gui.form.dialog.FileMappingDialog;
 
 import javax.swing.*;
 import java.awt.*;

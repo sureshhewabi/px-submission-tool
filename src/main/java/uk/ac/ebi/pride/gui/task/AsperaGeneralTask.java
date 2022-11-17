@@ -163,6 +163,8 @@ public abstract class AsperaGeneralTask extends TaskAdapter<Void, UploadMessage>
    * @return boolean true for successfully creating a submission file, false otherwise.
    */
   private File createSubmissionFile() {
+
+    AppContext appContext = (AppContext) App.getInstance().getDesktopContext();
     try {
       SecureRandom random = new SecureRandom();
       File tempDir =
@@ -173,7 +175,10 @@ public abstract class AsperaGeneralTask extends TaskAdapter<Void, UploadMessage>
               tempDir.getAbsolutePath() + File.separator + Constant.PX_SUBMISSION_SUMMARY_FILE);
       logger.info("Create temporary submission summary file : " + submissionFile.getAbsolutePath());
       SubmissionFileWriter.write(submissionRecord.getSubmission(), submissionFile);
-      SummaryDescriptor.addToolVersionAndLicenseToSummary(submissionFile.getAbsolutePath(), (AppContext) App.getInstance().getDesktopContext());
+      if(appContext.isResubmission()){
+        SummaryDescriptor.addResubmissionSummary(submissionFile.getAbsolutePath(), appContext);
+      }
+      SummaryDescriptor.addToolVersionAndLicenseToSummary(submissionFile.getAbsolutePath(), appContext);
       return submissionFile;
     } catch (SubmissionFileException ex) {
       String msg = "Failed to create submission file";

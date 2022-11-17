@@ -32,7 +32,8 @@ public class SampleMetaDataDescriptor extends ContextAwareNavigationPanelDescrip
 
     @Override
     public boolean toSkipPanel() {
-        return !appContext.getSubmissionType().equals(SubmissionType.COMPLETE);
+        final String resubmissionPxAccession = appContext.getSubmissionRecord().getSubmission().getProjectMetaData().getResubmissionPxAccession();
+        return !appContext.getSubmissionType().equals(SubmissionType.COMPLETE) || resubmissionPxAccession != null;
     }
 
     @Override

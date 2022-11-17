@@ -100,11 +100,12 @@ load.submission.file.button.title = Bulk submission
 load.submission.file.button.tooltip = Load an existing submission file with predefined submission details
 load.submission.file.button.small.icon = icon/16x16/submission.png
 
-# file mapping labels
-result.file.label.title = Result files
-result.file.description.title = Click on "Relation" button to add or remove related files
-mapping.file.label.title = Related files
-mapping.file.description.title = Files relate to the selected result file
+# resubmission labels
+resubmission.existing.files.label.title = Previously Submitted Files
+resubmission.existing.files.description.title = List of files already submitted to PRIDE
+resubmission.new.files.label.title = New files
+resubmission.new.files.description.title = Files you want to append or change to the submission
+resubmission.reset.button.title = Reset
 
 # project description labels
 copy.paste.tip.for.mac = Tip: Use Ctrl+C to copy, Ctrl+V to paste
@@ -214,9 +215,9 @@ additional.metadata.nav.desc.id = AdditionalMetaData
 additional.metadata.nav.desc.title = Additional Details
 additional.metadata.nav.desc.detail = Please give additional details about your submission
 
-file.mapping.nav.desc.id = FileMapping
-file.mapping.nav.desc.title = Relationships between files
-file.mapping.nav.desc.detail = Specify and check the files used for producing the results
+#file.mapping.nav.desc.id = FileMapping
+#file.mapping.nav.desc.title = Relationships between files
+#file.mapping.nav.desc.detail = Specify and check the files used for producing the results
 
 project.metadata.nav.desc.id = ProjectMetaData
 project.metadata.nav.desc.title = Dataset Details

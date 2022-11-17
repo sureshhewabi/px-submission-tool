@@ -69,6 +69,12 @@ public class ProjectMetaDataDescriptor extends ContextAwareNavigationPanelDescri
         firePropertyChange(BEFORE_HIDING_FOR_PREVIOUS_PANEL_PROPERTY, false, true);
     }
 
+    @Override
+    public boolean toSkipPanel() {
+        final String resubmissionPxAccession = appContext.getSubmissionRecord().getSubmission().getProjectMetaData().getResubmissionPxAccession();
+        return resubmissionPxAccession != null && resubmissionPxAccession.length()>0;
+    }
+
     /**
      * Save the content from the form to AppContext
      */

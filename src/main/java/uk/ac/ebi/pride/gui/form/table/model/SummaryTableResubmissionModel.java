@@ -20,13 +20,14 @@ import java.util.Set;
  * @author Rui Wang
  * @version $Id$
  */
-public class SummaryTableTreeModel extends AbstractTreeTableModel implements PropertyChangeListener {
+public class SummaryTableResubmissionModel extends AbstractTreeTableModel implements PropertyChangeListener {
 
     public enum TableHeader {
         FILE_NAME("File Name", "File name"),
         PATH("PATH / URL", "File path or URL"),
         TYPE("Type", "File type"),
-        SIZE("Size (Mb)", "File size");
+        SIZE("Size (Mb)", "File size"),
+        STATUS("STATUS", "Status");
 //        NUMBER_OF_MAPPINGS("#Mapped files", "Number of mapped source files");
 
         private final String header;
@@ -50,7 +51,7 @@ public class SummaryTableTreeModel extends AbstractTreeTableModel implements Pro
 
     private final AppContext appContext;
 
-    public SummaryTableTreeModel() {
+    public SummaryTableResubmissionModel() {
         super(new DataFile());
         this.appContext = (AppContext) App.getInstance().getDesktopContext();
         this.appContext.addPropertyChangeListener(this);
@@ -94,6 +95,9 @@ public class SummaryTableTreeModel extends AbstractTreeTableModel implements Pro
                 return Constant.UNKNOWN;
             }
         }
+//        } else if (TableHeader.STATUS.getHeader().equals(header)) {
+//            return dataFile.getFileType().toString();
+//        }
 
         return null;
     }

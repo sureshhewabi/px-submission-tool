@@ -2,7 +2,7 @@ package uk.ac.ebi.pride.gui.form.table.editor;
 
 import uk.ac.ebi.pride.App;
 import uk.ac.ebi.pride.data.model.DataFile;
-import uk.ac.ebi.pride.gui.form.dialog.FileMappingDialog;
+//import uk.ac.ebi.pride.gui.form.dialog.FileMappingDialog;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,11 +26,11 @@ public class MappingButtonCellEditor extends ButtonCellEditor {
 
     @Override
     public Object getCellEditorValue() {
-        if (isPushed) {
-            FileMappingDialog dialog = new FileMappingDialog(((App)App.getInstance()).getMainFrame(), (DataFile)value);
-            dialog.setLocationRelativeTo(((App)App.getInstance()).getMainFrame());
-            dialog.setVisible(true);
-        }
+//        if (isPushed) {
+//            FileMappingDialog dialog = new FileMappingDialog(((App)App.getInstance()).getMainFrame(), (DataFile)value);
+//            dialog.setLocationRelativeTo(((App)App.getInstance()).getMainFrame());
+//            dialog.setVisible(true);
+//        }
         return super.getCellEditorValue();
     }
 }

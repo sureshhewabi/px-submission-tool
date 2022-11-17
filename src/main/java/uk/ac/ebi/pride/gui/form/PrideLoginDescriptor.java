@@ -8,6 +8,7 @@ import uk.ac.ebi.pride.data.model.Submission;
 import uk.ac.ebi.pride.gui.data.SubmissionRecord;
 import uk.ac.ebi.pride.gui.form.comp.ContextAwareNavigationPanelDescriptor;
 import uk.ac.ebi.pride.gui.navigation.Navigator;
+import uk.ac.ebi.pride.gui.task.GetPrideProjectFilesTask;
 import uk.ac.ebi.pride.gui.task.GetPrideUserDetailTask;
 import uk.ac.ebi.pride.gui.util.ValidationState;
 import uk.ac.ebi.pride.toolsuite.gui.GUIUtilities;
@@ -103,6 +104,7 @@ public class PrideLoginDescriptor extends ContextAwareNavigationPanelDescriptor 
         submissionRecord.setUserName(username);
         submissionRecord.setPassword(password);
         // launch a new task for login
+//        Task task = new GetPrideProjectFilesTask(username, password.toCharArray());
         Task task = new GetPrideUserDetailTask(username, password.toCharArray());
         task.addTaskListener(this);
         task.setGUIBlocker(new DefaultGUIBlocker(task, GUIBlocker.Scope.NONE, null));

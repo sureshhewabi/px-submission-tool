@@ -142,6 +142,7 @@ public class FTPUploadTask extends TaskAdapter<Void, UploadMessage> implements T
      * @return boolean true indicates success
      */
     private File createSubmissionFile() {
+        AppContext appContext = (AppContext) App.getInstance().getDesktopContext();
         try {
             // create a random temporary directory
             SecureRandom random = new SecureRandom();
@@ -154,6 +155,9 @@ public class FTPUploadTask extends TaskAdapter<Void, UploadMessage> implements T
 
             // write out submission details
             SubmissionFileWriter.write(submissionRecord.getSubmission(), submissionFile);
+            if(appContext.isResubmission()){
+                SummaryDescriptor.addResubmissionSummary(submissionFile.getAbsolutePath(), appContext);
+            }
             SummaryDescriptor.addToolVersionAndLicenseToSummary(submissionFile.getAbsolutePath(),(AppContext) App.getInstance().getDesktopContext());
 
             return submissionFile;

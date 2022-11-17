@@ -10,11 +10,16 @@ px.submission.tool.height = 750
 px.user.token.url=https://www.ebi.ac.uk/pride/private/ws/archive/v2/getAAPToken
 px.user.detail.url=https://www.ebi.ac.uk/pride/private/ws/archive/v2/user/view-profile
 
+# url for retrieving pride Project Files details
+px.submission.ws.base.url=http://localhost:8010/
+px.project.files.url=resubmission/files/{accession}
+#px.user.token.url=https://www.ebi.ac.uk/pride/private/ws/archive/v2/getAAPToken
+
 # url for retrieving px ftp upload details
-px.upload.detail.url = http://www.proteomexchange.org/archive-submission-ws/submission/upload/{method}
+px.upload.detail.url = http://localhost:8010/submission/upload/{method}
 
 # url for completing px submission
-px.submission.complete.url = http://www.proteomexchange.org/archive-submission-ws/submission/submit
+px.submission.complete.url = http://localhost:8010/submission/submit
 
 # url for proteomexchange
 px.web.url = http://www.proteomexchange.org/

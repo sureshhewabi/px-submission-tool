@@ -218,8 +218,8 @@ public class SummaryItemPanel extends ContextAwarePanel
         if (AppContext.ADD_NEW_DATA_FILE.equals(propName)
                 || AppContext.REMOVE_DATA_FILE.equals(propName)
                 || AppContext.CHANGE_DATA_FILE_TYPE.equals(propName)
-                || AppContext.ADD_NEW_DATA_FILE_MAPPING.equals(propName)
-                || AppContext.REMOVE_DATA_FILE_MAPPING.equals(propName)
+//                || AppContext.ADD_NEW_DATA_FILE_MAPPING.equals(propName)
+//                || AppContext.REMOVE_DATA_FILE_MAPPING.equals(propName)
                 || AppContext.NEW_SUBMISSION_FILE.equals(propName)) {
             populateSummaryItemPanel();
         }

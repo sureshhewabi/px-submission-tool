@@ -55,11 +55,11 @@
         <uk.ac.ebi.pride.jaxb-pride-jaxb.version>1.0.18</uk.ac.ebi.pride.jaxb-pride-jaxb.version>
         <uk.ac.ebi.pride.utilities-pride-utilities.version>2.0.16</uk.ac.ebi.pride.utilities-pride-utilities.version>
         <uk.ac.ebi.pride.toolsuite-inspector-swing-utils.version>2.0.3</uk.ac.ebi.pride.toolsuite-inspector-swing-utils.version>
-        <uk.ac.ebi.pride-px-submission-core.version>2.0.35</uk.ac.ebi.pride-px-submission-core.version>
+        <uk.ac.ebi.pride-px-submission-core.version>2.0.36-SNAPSHOT</uk.ac.ebi.pride-px-submission-core.version>
         <uk.ac.ebi.pride.px-libpxreport.version>1.1</uk.ac.ebi.pride.px-libpxreport.version>
         <uk.ac.ebi.pride.toolsuite-ols-dialog.version>3.4.20-SNAPSHOT</uk.ac.ebi.pride.toolsuite-ols-dialog.version>
         <uk.ac.ebi.jmzidml-jmzidentml.version>1.2.6</uk.ac.ebi.jmzidml-jmzidentml.version>
-        <uk.ac.ebi.pride.archive-archive-submission-model.version>1.0.3</uk.ac.ebi.pride.archive-archive-submission-model.version>
+        <uk.ac.ebi.pride.archive-archive-submission-model.version>1.0.4-SNAPSHOT</uk.ac.ebi.pride.archive-archive-submission-model.version>
         <uk.ac.ebi.pride.sdrf.jsdrf.version>1.0-SNAPSHOT</uk.ac.ebi.pride.sdrf.jsdrf.version>
         <pg.converter.version>1.8.5</pg.converter.version>
     </properties>
@@ -109,15 +109,27 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+            <version>2.13.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.9.9</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.13.3</version>
+        </dependency>
         <dependency>
             <groupId>uk.ac.ebi.pride.sdrf</groupId>
             <artifactId>jsdrf</artifactId>
             <version>${uk.ac.ebi.pride.sdrf.jsdrf.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>2.10.1</version>
         </dependency>
         <!-- swing related libraries-->
         <dependency>

@@ -3,6 +3,7 @@ package uk.ac.ebi.pride;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.data.model.*;
+import uk.ac.ebi.pride.gui.data.ResubmissionRecord;
 import uk.ac.ebi.pride.gui.data.SubmissionRecord;
 import uk.ac.ebi.pride.toolsuite.gui.desktop.DesktopContext;
 import uk.ac.ebi.pride.archive.dataprovider.file.ProjectFileType;
@@ -29,11 +30,15 @@ public class AppContext extends DesktopContext {
      * Properties to notify property change listener
      */
     public static final String NEW_SUBMISSION_FILE = "newSubmissionFile";
+    public static final String NEW_RESUBMISSION_FILE = "newResubmissionFile";
     public static final String ADD_NEW_DATA_FILE = "addNewDataFile";
     public static final String REMOVE_DATA_FILE = "removeDataFile";
     public static final String ADD_NEW_DATA_FILE_MAPPING = "addNewDataFileMapping";
     public static final String REMOVE_DATA_FILE_MAPPING = "removeDataFileMapping";
+    public static final String ADD_NEW_RESUBMISSION_DATA_FILE = "addNewResubmissionDataFile";
+    public static final String REMOVE_RESUBMISSION_DATA_FILE = "removeResubmissionDataFile";
     public static final String CHANGE_DATA_FILE_TYPE = "changeDataFileType";
+    public static final String CHANGE_RESUBMISSION_DATA_FILE_ACTION = "changeResubmissionDataFileAction";
     public static final String ADD_NEW_SPECIES = "addNewSpecies";
     public static final String REMOVE_SPECIES = "removeSpecies";
     public static final String ADD_NEW_INSTRUMENT = "addNewInstrument";
@@ -52,15 +57,25 @@ public class AppContext extends DesktopContext {
     public static final String TRAINING_MODE_STATUS_ON = "on";
 
     /**
-     * The data model of the whole GUI
+     * The data model of the whole GUI for Submission
      */
     private SubmissionRecord submissionRecord;
 
+    /**
+     * The data model of the whole GUI for Resubmission
+     */
+    private ResubmissionRecord resubmissionRecord;
     /**
      * Keep a count of the data file entries, this can be used as the file entry
      * id
      */
     private int dataFileEntryCount;
+
+    /**
+     * Keep a count of the data file entries, this can be used as the file entry
+     * id for resubmission
+     */
+    private int resubDataFileEntryCount;
 
     /**
      * Remember whether the submission process is started from a submission.px
@@ -89,9 +104,14 @@ public class AppContext extends DesktopContext {
     // Controlled mode flag
     private boolean controlledAccessModeFlag = false;
 
+    private boolean isResubmission = false;
+
     public AppContext() {
         this.submissionRecord = new SubmissionRecord();
         this.submissionRecord.setSubmission(new Submission());
+
+        this.resubmissionRecord = new ResubmissionRecord();
+        this.resubmissionRecord.setResubmission(new Resubmission());
         this.dataFileEntryCount = 0;
     }
 
@@ -120,6 +140,27 @@ public class AppContext extends DesktopContext {
         firePropertyChange(NEW_SUBMISSION_FILE, false, true);
     }
 
+    public synchronized ResubmissionRecord getResubmissionRecord() {
+        return resubmissionRecord;
+    }
+
+    public synchronized void setResubmissionRecord(ResubmissionRecord resubmissionRecord) {
+        this.resubmissionRecord = resubmissionRecord;
+
+        Resubmission resubmission = this.resubmissionRecord.getResubmission();
+        this.resubDataFileEntryCount = maxDataFileID(resubmission.getDataFiles());
+
+        firePropertyChange(NEW_RESUBMISSION_FILE, false, true);
+    }
+
+    public synchronized boolean isResubmission() {
+        return isResubmission;
+    }
+
+    public synchronized void setResubmission(boolean resubmission) {
+        isResubmission = resubmission;
+    }
+
     /**
      * Find maximum ID from a list of data files;
      */
@@ -137,6 +178,10 @@ public class AppContext extends DesktopContext {
 
     public synchronized void resetDataFileEntryCount() {
         this.dataFileEntryCount = 0;
+    }
+
+    public synchronized void resetResubDataFileEntryCount() {
+        this.resubDataFileEntryCount = 0;
     }
 
     public synchronized String getOpenFilePath() {
@@ -207,6 +252,9 @@ public class AppContext extends DesktopContext {
 
             firePropertyChange(ADD_NEW_DATA_FILE, null, dataFile);
         }
+        if(isResubmission){
+            getResubmissionRecord().getResubmission().getResubmission().put(dataFile, ResubmissionFileChangeState.ADDED);
+        }
     }
 
     /**
@@ -221,10 +269,59 @@ public class AppContext extends DesktopContext {
             // remove data file
             submission.removeDataFile(dataFile);
             // remove related file mappings
-            for (DataFile file : submission.getDataFiles()) {
-                removeFileMapping(file, dataFile);
-            }
+//            for (DataFile file : submission.getDataFiles()) {
+//                removeFileMapping(file, dataFile);
+//            }
             firePropertyChange(REMOVE_DATA_FILE, dataFile, null);
+        }
+        if(isResubmission){
+            getResubmissionRecord().getResubmission().getResubmission().remove(dataFile);
+        }
+    }
+
+    /**
+     * Add a new data file for Resubmission
+     *
+     * @param dataFile new data file
+     */
+    public synchronized void addResubmissionDataFile(DataFile dataFile) {
+        Resubmission resubmission = resubmissionRecord.getResubmission();
+        if (!resubmission.containsDataFile(dataFile)) {
+            if (dataFile.getFileId() < 0) {
+                // assign a new id
+                while (hasSameDataFileId(resubDataFileEntryCount)) {
+                    resubDataFileEntryCount++;
+                }
+                dataFile.setFileId(resubDataFileEntryCount);
+
+            }
+            // add file to
+            //      1. List<DataFile> which contains files already submitted with previous submission
+            //      2. Map<DataFile, ResubmissionFileChangeState> which contains files already submitted
+            //      with previous submission + newly added or modified files with the status(NONE/ADDED/MODIFIED/DETELED)
+            resubmission.addDataFile(dataFile);
+            resubDataFileEntryCount++;
+
+            firePropertyChange(ADD_NEW_RESUBMISSION_DATA_FILE, null, dataFile);
+        }
+    }
+
+    /**
+     * Remove a data file from Resubmission
+     *
+     * @param dataFile data file to remove
+     */
+    public synchronized void removeResubmissionDatafile(DataFile dataFile) {
+        Resubmission resubmission = resubmissionRecord.getResubmission();
+
+        if (resubmission.containsDataFile(dataFile)) {
+            // remove data file
+            resubmission.removeDataFile(dataFile);
+            // remove related file mappings
+//            for (DataFile file : submission.getDataFiles()) {
+//                removeFileMapping(file, dataFile);
+//            }
+            firePropertyChange(REMOVE_RESUBMISSION_DATA_FILE, dataFile, null);
         }
     }
 
@@ -326,6 +423,15 @@ public class AppContext extends DesktopContext {
         if (dataFile != null && type != null && !dataFile.getFileType().equals(type)) {
             dataFile.setFileType(type);
             firePropertyChange(CHANGE_DATA_FILE_TYPE, null, dataFile);
+        }
+    }
+
+
+    public synchronized void setResubmissionAction(DataFile dataFile, ResubmissionFileChangeState action) {
+        if (dataFile != null && action != null) {
+//            dataFile.setFileType(type);
+            resubmissionRecord.getResubmission().getResubmission().put(dataFile, action);
+            firePropertyChange(CHANGE_RESUBMISSION_DATA_FILE_ACTION, null, action);
         }
     }
 

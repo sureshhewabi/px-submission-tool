@@ -4,31 +4,12 @@ import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.table.TableColumnExt;
 import uk.ac.ebi.pride.App;
 import uk.ac.ebi.pride.archive.dataprovider.file.ProjectFileType;
+import uk.ac.ebi.pride.data.model.ResubmissionFileChangeState;
 import uk.ac.ebi.pride.gui.form.table.editor.ComboBoxCellEditor;
-import uk.ac.ebi.pride.gui.form.table.editor.MappingButtonCellEditor;
 import uk.ac.ebi.pride.gui.form.table.editor.SampleMetaDataButtonCellEditor;
-import uk.ac.ebi.pride.gui.form.table.listener.FileMappingSelectionListener;
-import uk.ac.ebi.pride.gui.form.table.listener.RemoveDataFileListener;
-import uk.ac.ebi.pride.gui.form.table.listener.RemoveDataFileMappingListener;
-import uk.ac.ebi.pride.gui.form.table.listener.RemoveMetadataListener;
-import uk.ac.ebi.pride.gui.form.table.listener.RemoveSampleMetaDataListener;
-import uk.ac.ebi.pride.gui.form.table.listener.TableCellMouseMotionListener;
-import uk.ac.ebi.pride.gui.form.table.model.AbstractMetaDataTableModel;
-import uk.ac.ebi.pride.gui.form.table.model.FileMappingTableModel;
-import uk.ac.ebi.pride.gui.form.table.model.FileSelectionTableModel;
-import uk.ac.ebi.pride.gui.form.table.model.ProjectTagTableModel;
-import uk.ac.ebi.pride.gui.form.table.model.ResultFileTableModel;
-import uk.ac.ebi.pride.gui.form.table.model.SampleMetaDataTableModel;
-import uk.ac.ebi.pride.gui.form.table.model.SourceFileMappngTableModel;
-import uk.ac.ebi.pride.gui.form.table.model.SummaryTableTreeModel;
-import uk.ac.ebi.pride.gui.form.table.model.TargetFileMappingTableModel;
-import uk.ac.ebi.pride.gui.form.table.renderer.BooleanCellRenderer;
-import uk.ac.ebi.pride.gui.form.table.renderer.ButtonCellRenderer;
-import uk.ac.ebi.pride.gui.form.table.renderer.CheckboxCellRenderer;
-import uk.ac.ebi.pride.gui.form.table.renderer.ComboBoxCellRenderer;
-import uk.ac.ebi.pride.gui.form.table.renderer.FileMappingCountCellRenderer;
-import uk.ac.ebi.pride.gui.form.table.renderer.InvalidFileSelectionRenderer;
-import uk.ac.ebi.pride.gui.form.table.renderer.RemovalCellRenderer;
+import uk.ac.ebi.pride.gui.form.table.listener.*;
+import uk.ac.ebi.pride.gui.form.table.model.*;
+import uk.ac.ebi.pride.gui.form.table.renderer.*;
 import uk.ac.ebi.pride.toolsuite.gui.GUIUtilities;
 
 import javax.swing.*;
@@ -38,7 +19,6 @@ import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
-import java.awt.*;
 
 /**
  * TableFactory is responsible for creating all the tables in this application
@@ -142,47 +122,83 @@ public class TableFactory {
 
         return table;
     }
+//
+//    /**
+//     * Create a table for storing the source files of the file mappings
+//     *
+//     * @return JTable  source file mapping table
+//     */
+//    public static JTable createSourceFileNewResubmissionTable() {
+//        SourceFileMappngTableModel tableModel = new SourceFileMappngTableModel();
+//        JTable table = new PxTable(tableModel);
+//
+//        // set file name column width
+//        TableColumnExt nameColumn = (TableColumnExt) table.getColumn(SourceFileMappngTableModel.TableHeader.FILE_NAME.getHeader());
+//        nameColumn.setPreferredWidth(FILE_NAME_COLUMN_WIDTH);
+//
+//        // set file path column width
+//        TableColumnExt pathColumn = (TableColumnExt) table.getColumn(SourceFileMappngTableModel.TableHeader.PATH.getHeader());
+//        pathColumn.setPreferredWidth(FILE_PATH_COLUMN_WIDTH);
+//
+//        // create combo box to select file type
+//        TableColumnExt fileTypeColumn = (TableColumnExt) table.getColumn(SourceFileMappngTableModel.TableHeader.TYPE.getHeader());
+//        fileTypeColumn.setMinWidth(FILE_TYPE_COLUMN_WIDTH);
+//        fileTypeColumn.setMaxWidth(FILE_TYPE_COLUMN_WIDTH);
+//
+//        // mapping count column
+//        TableColumnExt mappingCountColumn = (TableColumnExt) table.getColumn(SourceFileMappngTableModel.TableHeader.FILE_NAME.getHeader());
+//        mappingCountColumn.setCellRenderer(new FileMappingCountCellRenderer());
+//        mappingCountColumn.setPreferredWidth(MAPPING_COUNT_COLUMN_WIDTH);
+//
+//        // mapping column
+//        String mappingColHeader = SourceFileMappngTableModel.TableHeader.FILE_NAME.getHeader();
+//        final TableColumnExt mappingColumn = (TableColumnExt) table.getColumn(mappingColHeader);
+//        String text = App.getInstance().getDesktopContext().getProperty("add.file.mapping.button.title");
+//        Icon icon = GUIUtilities.loadIcon(App.getInstance().getDesktopContext().getProperty("add.file.mapping.button.small.icon"));
+//        mappingColumn.setCellRenderer(new ButtonCellRenderer(text, icon));
+//        mappingColumn.setCellEditor(new MappingButtonCellEditor(text, icon));
+//        mappingColumn.setMaxWidth(MAPPING_COLUMN_WIDTH);
+//        mappingColumn.setMinWidth(MAPPING_COLUMN_WIDTH);
+//
+//        // add listener for removal
+//        table.addMouseMotionListener(new TableCellMouseMotionListener(table, mappingColHeader));
+//
+//
+//        return table;
+//    }
 
     /**
-     * Create a table for storing the source files of the file mappings
+     * Create a table for storing the submitted files with a previous submission(which needs to be resubmitted now)
      *
-     * @return JTable  source file mapping table
+     * @return JTable  submitted file table
      */
-    public static JTable createSourceFileMappingTable() {
-        SourceFileMappngTableModel tableModel = new SourceFileMappngTableModel();
+    public static JTable createExistingFilesResubmissionTable() {
+        ExistingFilesResubmissionTableModel tableModel = new ExistingFilesResubmissionTableModel();
         JTable table = new PxTable(tableModel);
 
         // set file name column width
-        TableColumnExt nameColumn = (TableColumnExt) table.getColumn(SourceFileMappngTableModel.TableHeader.FILE_NAME.getHeader());
+        TableColumnExt nameColumn = (TableColumnExt) table.getColumn(ExistingFilesResubmissionTableModel.TableHeader.FILE_NAME.getHeader());
         nameColumn.setPreferredWidth(FILE_NAME_COLUMN_WIDTH);
 
-        // set file path column width
-        TableColumnExt pathColumn = (TableColumnExt) table.getColumn(SourceFileMappngTableModel.TableHeader.PATH.getHeader());
-        pathColumn.setPreferredWidth(FILE_PATH_COLUMN_WIDTH);
-
         // create combo box to select file type
-        TableColumnExt fileTypeColumn = (TableColumnExt) table.getColumn(SourceFileMappngTableModel.TableHeader.TYPE.getHeader());
+        TableColumnExt fileTypeColumn = (TableColumnExt) table.getColumn(ExistingFilesResubmissionTableModel.TableHeader.TYPE.getHeader());
         fileTypeColumn.setMinWidth(FILE_TYPE_COLUMN_WIDTH);
         fileTypeColumn.setMaxWidth(FILE_TYPE_COLUMN_WIDTH);
 
-        // mapping count column
-        TableColumnExt mappingCountColumn = (TableColumnExt) table.getColumn(SourceFileMappngTableModel.TableHeader.NUMBER_OF_MAPPINGS.getHeader());
-        mappingCountColumn.setCellRenderer(new FileMappingCountCellRenderer());
-        mappingCountColumn.setPreferredWidth(MAPPING_COUNT_COLUMN_WIDTH);
+        // set file size column width
+        TableColumnExt filesizeColumn = (TableColumnExt) table.getColumn(ExistingFilesResubmissionTableModel.TableHeader.SIZE.getHeader());
+        filesizeColumn.setPreferredWidth(FILE_SIZE_COLUMN_WIDTH);
+        filesizeColumn.setCellRenderer(new InvalidFileSelectionRenderer());
+        DefaultTableCellRenderer filesizeColumnRenderer = new DefaultTableCellRenderer();
+        filesizeColumnRenderer.setHorizontalAlignment(JLabel.RIGHT);
+        filesizeColumn.setCellRenderer(filesizeColumnRenderer);
 
-        // mapping column
-        String mappingColHeader = SourceFileMappngTableModel.TableHeader.MAPPING.getHeader();
-        final TableColumnExt mappingColumn = (TableColumnExt) table.getColumn(mappingColHeader);
-        String text = App.getInstance().getDesktopContext().getProperty("add.file.mapping.button.title");
-        Icon icon = GUIUtilities.loadIcon(App.getInstance().getDesktopContext().getProperty("add.file.mapping.button.small.icon"));
-        mappingColumn.setCellRenderer(new ButtonCellRenderer(text, icon));
-        mappingColumn.setCellEditor(new MappingButtonCellEditor(text, icon));
-        mappingColumn.setMaxWidth(MAPPING_COLUMN_WIDTH);
-        mappingColumn.setMinWidth(MAPPING_COLUMN_WIDTH);
-
-        // add listener for removal
-        table.addMouseMotionListener(new TableCellMouseMotionListener(table, mappingColHeader));
-
+        // create combo box to select actions
+        TableColumnExt actionColumn = (TableColumnExt) table.getColumn(ExistingFilesResubmissionTableModel.TableHeader.ACTION.getHeader());
+        actionColumn.setCellRenderer(new ComboBoxCellRenderer(ResubmissionFileChangeState.values()));
+        actionColumn.setCellEditor(new ComboBoxCellEditor(new ResubmissionFileChangeState[]{ResubmissionFileChangeState.NONE,ResubmissionFileChangeState.ADDED, ResubmissionFileChangeState.MODIFIED, ResubmissionFileChangeState.DELETED}));
+        actionColumn.setMinWidth(FILE_TYPE_COLUMN_WIDTH);
+        actionColumn.setMaxWidth(FILE_TYPE_COLUMN_WIDTH);
 
         return table;
     }
@@ -244,29 +260,74 @@ public class TableFactory {
      *
      * @return JTable  file mapping table
      */
-    public static JTable createFileMappingTable() {
-        FileMappingTableModel tableModel = new FileMappingTableModel();
+    public static JTable createFileNewResubmissionTable() {
+        ResubmissionFileSelectionTableModel tableModel = new ResubmissionFileSelectionTableModel();
         JTable table = new PxTable(tableModel);
 
-        // set file selection column width
-        TableColumnExt selectionColumn = (TableColumnExt) table.getColumn(FileMappingTableModel.TableHeader.SELECTION.getHeader());
-        selectionColumn.setPreferredWidth(CHECKBOX_COLUMN_WIDTH);
-
-        // file selection checkbox
-        selectionColumn.setCellRenderer(new CheckboxCellRenderer());
-        DefaultCellEditor checkBoxCellEditor = new DefaultCellEditor(new JCheckBox());
-        selectionColumn.setCellEditor(checkBoxCellEditor);
+        // hide the id column
+        TableColumnExt idColumn = (TableColumnExt) table.getColumn(FileSelectionTableModel.TableHeader.FILE_ID.getHeader());
+        idColumn.setVisible(false);
 
         // set file name column width
-        TableColumnExt nameColumn = (TableColumnExt) table.getColumn(FileMappingTableModel.TableHeader.FILE_NAME.getHeader());
+        TableColumnExt nameColumn = (TableColumnExt) table.getColumn(FileSelectionTableModel.TableHeader.FILE_NAME.getHeader());
         nameColumn.setPreferredWidth(FILE_NAME_COLUMN_WIDTH);
+        nameColumn.setCellRenderer(new InvalidFileSelectionRenderer());
+        DefaultTableCellRenderer nameColumnRenderer = new DefaultTableCellRenderer();
+        nameColumnRenderer.setHorizontalAlignment(JLabel.LEFT);
+        nameColumn.setCellRenderer(nameColumnRenderer);
 
         // set file path column width
-        TableColumnExt pathColumn = (TableColumnExt) table.getColumn(FileMappingTableModel.TableHeader.PATH.getHeader());
+        TableColumnExt pathColumn = (TableColumnExt) table.getColumn(FileSelectionTableModel.TableHeader.PATH.getHeader());
         pathColumn.setPreferredWidth(FILE_PATH_COLUMN_WIDTH);
+        pathColumn.setCellRenderer(new InvalidFileSelectionRenderer());
+        DefaultTableCellRenderer pathColumnRenderer = new DefaultTableCellRenderer();
+        pathColumnRenderer.setHorizontalAlignment(JLabel.LEFT);
+        pathColumn.setCellRenderer(pathColumnRenderer);
 
-        // add mouse motion listener
-        table.addMouseListener(new FileMappingSelectionListener(table));
+        // set file size column width
+        TableColumnExt filesizeColumn = (TableColumnExt) table.getColumn(FileSelectionTableModel.TableHeader.SIZE.getHeader());
+        filesizeColumn.setPreferredWidth(FILE_SIZE_COLUMN_WIDTH);
+        filesizeColumn.setCellRenderer(new InvalidFileSelectionRenderer());
+        DefaultTableCellRenderer filesizeColumnRenderer = new DefaultTableCellRenderer();
+        filesizeColumnRenderer.setHorizontalAlignment(JLabel.RIGHT);
+        filesizeColumn.setCellRenderer(filesizeColumnRenderer);
+
+        // create combo box to select file type
+        TableColumnExt fileTypeColumn = (TableColumnExt) table.getColumn(FileSelectionTableModel.TableHeader.TYPE.getHeader());
+        fileTypeColumn.setCellRenderer(new ComboBoxCellRenderer(ProjectFileType.values()));
+        fileTypeColumn.setCellEditor(new ComboBoxCellEditor(ProjectFileType.values()));
+        fileTypeColumn.setMinWidth(FILE_TYPE_COLUMN_WIDTH);
+        fileTypeColumn.setMaxWidth(FILE_TYPE_COLUMN_WIDTH);
+
+        // removal column
+        String removalColHeader = FileSelectionTableModel.TableHeader.REMOVAL.getHeader();
+        final TableColumnExt removalColumn = (TableColumnExt) table.getColumn(removalColHeader);
+        removalColumn.setCellRenderer(new RemovalCellRenderer());
+        removalColumn.setVisible(false);
+        removalColumn.setMaxWidth(REMOVAL_COLUMN_WIDTH);
+        removalColumn.setMinWidth(REMOVAL_COLUMN_WIDTH);
+
+        // hide validation column
+        TableColumnExt validColumn = (TableColumnExt) table.getColumn(FileSelectionTableModel.TableHeader.VALIDATION.getHeader());
+        validColumn.setVisible(false);
+
+        // add a listener to show/hide removal column
+        tableModel.addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                int rowCnt = ((TableModel) e.getSource()).getRowCount();
+                if (rowCnt > 0) {
+                    removalColumn.setVisible(true);
+                } else {
+                    removalColumn.setVisible(false);
+                }
+            }
+        });
+
+        // add listener for removal
+        table.addMouseMotionListener(new TableCellMouseMotionListener(table, removalColHeader));
+        table.addMouseListener(new RemoveDataFileListener(table, removalColHeader));
+
 
         return table;
     }
@@ -284,33 +345,33 @@ public class TableFactory {
         table.setOpenIcon(null);
         table.setRootVisible(false);
 
-        tableModel.addTreeModelListener(new TreeModelListener() {
-            @Override
-            public void treeNodesChanged(TreeModelEvent e) {
-                expandAllRows();
-            }
-
-            @Override
-            public void treeNodesInserted(TreeModelEvent e) {
-                expandAllRows();
-            }
-
-            @Override
-            public void treeNodesRemoved(TreeModelEvent e) {
-                expandAllRows();
-            }
-
-            @Override
-            public void treeStructureChanged(TreeModelEvent e) {
-                expandAllRows();
-            }
-
-            private void expandAllRows() {
-                table.expandAll();
-                table.revalidate();
-                table.repaint();
-            }
-        });
+//        tableModel.addTreeModelListener(new TreeModelListener() {
+//            @Override
+//            public void treeNodesChanged(TreeModelEvent e) {
+//                expandAllRows();
+//            }
+//
+//            @Override
+//            public void treeNodesInserted(TreeModelEvent e) {
+//                expandAllRows();
+//            }
+//
+//            @Override
+//            public void treeNodesRemoved(TreeModelEvent e) {
+//                expandAllRows();
+//            }
+//
+//            @Override
+//            public void treeStructureChanged(TreeModelEvent e) {
+//                expandAllRows();
+//            }
+//
+//            private void expandAllRows() {
+//                table.expandAll();
+//                table.revalidate();
+//                table.repaint();
+//            }
+//        });
 
         return table;
     }
